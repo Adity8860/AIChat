@@ -1,41 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { askAI } from "../Services/puter.js";
 
-const sendMessage = async () => {
-  const text = input.trim();
-  if (!text) return;
-
-  setMessages((prev) => [
-    ...prev,
-    { id: Date.now(), role: ME, text, time: new Date() },
-  ]);
-  setInput("");
-  if (textareaRef.current) textareaRef.current.style.height = "auto";
-  setIsTyping(true);
-
-  // Call Puter AI
-  const aiReply = await askAI(text);
-
-  setIsTyping(false);
-  setMessages((prev) => [
-    ...prev,
-    { id: Date.now() + 1, role: BOT, text: aiReply, time: new Date() },
-  ]);
-
-  textareaRef.current?.focus();
-};
-
 const ME = "me";
 const BOT = "bot";
-
-const BOT_REPLIES = [
-  "Got it! Anything else you'd like to discuss?",
-  "That's interesting — tell me more.",
-  "Sure, I'm here to help.",
-  "Makes sense. What would you like to do next?",
-  "I understand. Let me know how I can assist.",
-  "Good point! Let's explore that further.",
-];
 
 const formatTime = (date) =>
   date.toLocaleTimeString("en-US", {
@@ -94,14 +61,7 @@ const BotAvatar = () => (
 );
 
 const TypingDots = () => (
-  <div
-    style={{
-      display: "flex",
-      alignItems: "center",
-      gap: 4,
-      padding: "3px 2px",
-    }}
-  >
+  <div style={{ display: "flex", gap: 4 }}>
     {[0, 1, 2].map((i) => (
       <div
         key={i}
@@ -133,6 +93,7 @@ const ChatBoard = () => {
       time: new Date(),
     },
   ]);
+
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const bottomRef = useRef(null);
@@ -142,31 +103,47 @@ const ChatBoard = () => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     const text = input.trim();
     if (!text) return;
 
+    // Add user message
     setMessages((prev) => [
       ...prev,
       { id: Date.now(), role: ME, text, time: new Date() },
     ]);
+
     setInput("");
     if (textareaRef.current) textareaRef.current.style.height = "auto";
     setIsTyping(true);
 
-    setTimeout(
-      () => {
-        const reply =
-          BOT_REPLIES[Math.floor(Math.random() * BOT_REPLIES.length)];
-        setIsTyping(false);
-        setMessages((prev) => [
-          ...prev,
-          { id: Date.now() + 1, role: BOT, text: reply, time: new Date() },
-        ]);
-      },
-      900 + Math.random() * 700,
-    );
+    try {
+      const aiReply = await askAI(text);
 
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          role: BOT,
+          text: aiReply?.trim() || "No response from AI",
+          time: new Date(),
+        },
+      ]);
+      console.log("AI REPLY:", aiReply);
+    } catch (error) {
+      console.error(error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          role: BOT,
+          text: "⚠️ Error getting response",
+          time: new Date(),
+        },
+      ]);
+    }
+
+    setIsTyping(false);
     textareaRef.current?.focus();
   };
 
@@ -184,54 +161,25 @@ const ChatBoard = () => {
         flexDirection: "column",
         height: "100vh",
         background: "#F5F6F8",
-        fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif",
+        fontFamily: "'DM Sans', sans-serif",
       }}
     >
       {/* Header */}
       <div
         style={{
           background: "#1E2228",
-          borderBottom: "1px solid #2C3340",
           padding: "14px 20px",
           display: "flex",
           alignItems: "center",
           gap: 12,
-          flexShrink: 0,
         }}
       >
         <BotAvatar />
         <div>
-          <p
-            style={{
-              margin: 0,
-              fontWeight: 600,
-              fontSize: 14,
-              color: "#E8ECF0",
-            }}
-          >
+          <p style={{ margin: 0, fontWeight: 600, color: "#E8ECF0" }}>
             AI Assistant
           </p>
-          <p
-            style={{
-              margin: 0,
-              fontSize: 12,
-              color: "#7A8594",
-              display: "flex",
-              alignItems: "center",
-              gap: 5,
-            }}
-          >
-            <span
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: "50%",
-                background: "#4ADE80",
-                display: "inline-block",
-              }}
-            />
-            Online
-          </p>
+          <p style={{ margin: 0, fontSize: 12, color: "#7A8594" }}>● Online</p>
         </div>
       </div>
 
@@ -240,10 +188,10 @@ const ChatBoard = () => {
         style={{
           flex: 1,
           overflowY: "auto",
-          padding: "20px 16px",
+          padding: 16,
           display: "flex",
           flexDirection: "column",
-          gap: 14,
+          gap: 12,
         }}
       >
         {messages.map((msg) => (
@@ -252,45 +200,24 @@ const ChatBoard = () => {
             style={{
               display: "flex",
               flexDirection: msg.role === ME ? "row-reverse" : "row",
-              alignItems: "flex-end",
               gap: 8,
             }}
           >
             {msg.role === BOT && <BotAvatar />}
-            <div
-              style={{
-                maxWidth: "70%",
-                display: "flex",
-                flexDirection: "column",
-                gap: 4,
-                alignItems: msg.role === ME ? "flex-end" : "flex-start",
-              }}
-            >
+            <div>
               <div
                 style={{
                   padding: "10px 14px",
                   background: msg.role === ME ? "#5B8DEF" : "#1E2228",
-                  color: msg.role === ME ? "#fff" : "#E8ECF0",
-                  borderRadius:
-                    msg.role === ME
-                      ? "16px 16px 4px 16px"
-                      : "16px 16px 16px 4px",
-                  fontSize: 13.5,
-                  lineHeight: 1.6,
-                  border: msg.role === BOT ? "1px solid #2C3340" : "none",
-                  wordBreak: "break-word",
+                  color: "#fff",
+                  borderRadius: 12,
+                  whiteSpace: "pre-wrap", // ✅ IMPORTANT
+                  lineHeight: 1.5,
                 }}
               >
                 {msg.text}
               </div>
-              <span
-                style={{
-                  fontSize: 11,
-                  color: "#9CA3AF",
-                  paddingLeft: 4,
-                  paddingRight: 4,
-                }}
-              >
+              <span style={{ fontSize: 10, color: "#9CA3AF" }}>
                 {formatTime(msg.time)}
               </span>
             </div>
@@ -298,82 +225,50 @@ const ChatBoard = () => {
         ))}
 
         {isTyping && (
-          <div style={{ display: "flex", alignItems: "flex-end", gap: 8 }}>
+          <div style={{ display: "flex", gap: 8 }}>
             <BotAvatar />
-            <div
-              style={{
-                padding: "10px 14px",
-                background: "#1E2228",
-                border: "1px solid #2C3340",
-                borderRadius: "16px 16px 16px 4px",
-              }}
-            >
-              <TypingDots />
-            </div>
+            <TypingDots />
           </div>
         )}
+
         <div ref={bottomRef} />
       </div>
 
       {/* Input */}
       <div
         style={{
-          background: "#1E2228",
-          borderTop: "1px solid #2C3340",
-          padding: "12px 16px",
+          padding: 10,
           display: "flex",
-          alignItems: "flex-end",
           gap: 10,
-          flexShrink: 0,
+          background: "#1E2228",
         }}
       >
         <textarea
           ref={textareaRef}
           value={input}
-          onChange={(e) => {
-            setInput(e.target.value);
-            e.target.style.height = "auto";
-            e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
-          }}
+          onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Type a message..."
-          rows={1}
           style={{
             flex: 1,
-            resize: "none",
-            border: "1px solid #2C3340",
-            borderRadius: 10,
-            padding: "10px 14px",
-            fontSize: 13.5,
-            color: "#E8ECF0",
+            borderRadius: 8,
+            padding: 10,
             background: "#2A3040",
-            outline: "none",
-            fontFamily: "inherit",
-            lineHeight: 1.5,
-            overflow: "hidden",
-            transition: "border-color 0.15s",
+            color: "#fff",
+            resize: "none",
           }}
-          onFocus={(e) => (e.target.style.borderColor = "#5B8DEF")}
-          onBlur={(e) => (e.target.style.borderColor = "#2C3340")}
         />
+
         <button
           onClick={sendMessage}
-          disabled={!input.trim()}
+          disabled={!input.trim() || isTyping}
           style={{
-            width: 38,
-            height: 38,
-            borderRadius: 9,
+            background: "#5B8DEF",
             border: "none",
-            background: input.trim() ? "#5B8DEF" : "#2A3040",
-            color: input.trim() ? "#fff" : "#7A8594",
-            cursor: input.trim() ? "pointer" : "not-allowed",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
-            transition: "background 0.15s, color 0.15s",
+            padding: "8px 12px",
+            borderRadius: 8,
+            cursor: "pointer",
           }}
-          aria-label="Send"
         >
           <SendIcon />
         </button>
