@@ -10,7 +10,7 @@ const formatTime = (date) =>
     minute: "2-digit",
     hour12: true,
   });
-//Push to git
+
 const SendIcon = () => (
   <svg
     width="15"
@@ -32,8 +32,8 @@ const BotAvatar = () => (
     style={{
       width: 30,
       height: 30,
-      borderRadius: "50%",
-      background: "#2A3040",
+      borderRadius: 10,
+      background: "#2E3A52",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -45,7 +45,7 @@ const BotAvatar = () => (
       height="15"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="#5B8DEF"
+      stroke="#7B9FD4"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -61,7 +61,17 @@ const BotAvatar = () => (
 );
 
 const TypingDots = () => (
-  <div style={{ display: "flex", gap: 4 }}>
+  <div
+    style={{
+      background: "rgb(28, 35, 51)",
+      borderRadius: 12,
+      borderBottomLeftRadius: 4,
+      padding: "12px 16px",
+      display: "flex",
+      gap: 5,
+      alignItems: "center",
+    }}
+  >
     {[0, 1, 2].map((i) => (
       <div
         key={i}
@@ -69,15 +79,15 @@ const TypingDots = () => (
           width: 6,
           height: 6,
           borderRadius: "50%",
-          background: "#7A8594",
-          animation: "bounce 1.2s infinite",
-          animationDelay: `${i * 0.2}s`,
+          background: "#5A6880",
+          animation: "bounce 1.3s infinite",
+          animationDelay: `${i * 0.18}s`,
         }}
       />
     ))}
     <style>{`
       @keyframes bounce {
-        0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+        0%, 60%, 100% { transform: translateY(0); opacity: 0.35; }
         30% { transform: translateY(-5px); opacity: 1; }
       }
     `}</style>
@@ -89,7 +99,7 @@ const ChatBoard = () => {
     {
       id: 1,
       role: BOT,
-      text: "Hey! 👋 How can I help you today?",
+      text: "Hey! How can I help you today?",
       time: new Date(),
     },
   ]);
@@ -107,7 +117,6 @@ const ChatBoard = () => {
     const text = input.trim();
     if (!text) return;
 
-    // Add user message
     setMessages((prev) => [
       ...prev,
       { id: Date.now(), role: ME, text, time: new Date() },
@@ -119,7 +128,6 @@ const ChatBoard = () => {
 
     try {
       const aiReply = await askAI(text);
-
       setMessages((prev) => [
         ...prev,
         {
@@ -129,7 +137,6 @@ const ChatBoard = () => {
           time: new Date(),
         },
       ]);
-      console.log("AI REPLY:", aiReply);
     } catch (error) {
       console.error(error);
       setMessages((prev) => [
@@ -154,32 +161,131 @@ const ChatBoard = () => {
     }
   };
 
+  const handleInput = (e) => {
+    setInput(e.target.value);
+    e.target.style.height = "auto";
+    e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
+  };
+
   return (
     <div
       style={{
         display: "flex",
         flexDirection: "column",
         height: "100vh",
-        background: "#F5F6F8",
+        background: "#F0EDE8",
         fontFamily: "'DM Sans', sans-serif",
       }}
     >
       {/* Header */}
       <div
         style={{
-          background: "#1E2228",
-          padding: "14px 20px",
+          background: "rgb(28, 35, 51)",
+          padding: "14px 18px",
           display: "flex",
           alignItems: "center",
           gap: 12,
+          flexShrink: 0,
         }}
       >
         <BotAvatar />
         <div>
-          <p style={{ margin: 0, fontWeight: 600, color: "#E8ECF0" }}>
+          <p
+            style={{
+              margin: 0,
+              fontWeight: 600,
+              color: "#E8E4DC",
+              fontSize: 14,
+              letterSpacing: "0.01em",
+            }}
+          >
             AI Assistant
           </p>
-          <p style={{ margin: 0, fontSize: 12, color: "#7A8594" }}>● Online</p>
+          <p
+            style={{
+              margin: 0,
+              fontSize: 11,
+              color: "#6B7A91",
+              display: "flex",
+              alignItems: "center",
+              gap: 5,
+              marginTop: 2,
+            }}
+          >
+            <span
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: "50%",
+                background: "#4CAF7D",
+                display: "inline-block",
+              }}
+            />
+            Online
+          </p>
+        </div>
+
+        {/* Header action buttons */}
+        <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+          {/* Search */}
+          <button
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: 8,
+              background: "#2E3A52",
+              border: "none",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#8A97AE",
+            }}
+          >
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </button>
+          {/* More */}
+          <button
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: 8,
+              background: "#2E3A52",
+              border: "none",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#8A97AE",
+            }}
+          >
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="5" r="1.5" fill="currentColor" />
+              <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+              <circle cx="12" cy="19" r="1.5" fill="currentColor" />
+            </svg>
+          </button>
         </div>
       </div>
 
@@ -188,36 +294,72 @@ const ChatBoard = () => {
         style={{
           flex: 1,
           overflowY: "auto",
-          padding: 16,
+          padding: "18px 16px",
           display: "flex",
           flexDirection: "column",
-          gap: 12,
+          gap: 14,
         }}
       >
+        {/* Date divider */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            fontSize: 11,
+            color: "#9E9890",
+            letterSpacing: "0.05em",
+            textTransform: "uppercase",
+          }}
+        >
+          <span style={{ flex: 1, height: 1, background: "#D8D4CE" }} />
+          Today
+          <span style={{ flex: 1, height: 1, background: "#D8D4CE" }} />
+        </div>
+
         {messages.map((msg) => (
           <div
             key={msg.id}
             style={{
               display: "flex",
               flexDirection: msg.role === ME ? "row-reverse" : "row",
-              gap: 8,
+              gap: 10,
+              alignItems: "flex-end",
             }}
           >
             {msg.role === BOT && <BotAvatar />}
-            <div>
+
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                maxWidth: "72%",
+                alignItems: msg.role === ME ? "flex-end" : "flex-start",
+              }}
+            >
               <div
                 style={{
                   padding: "10px 14px",
-                  background: msg.role === ME ? "#5B8DEF" : "#1E2228",
-                  color: "#fff",
+                  background: msg.role === ME ? "#C8623A" : "rgb(28, 35, 51)",
+                  color: msg.role === ME ? "#FAF5EE" : "#DDD9D2",
                   borderRadius: 12,
-                  whiteSpace: "pre-wrap", // ✅ IMPORTANT
-                  lineHeight: 1.5,
+                  borderBottomRightRadius: msg.role === ME ? 4 : 12,
+                  borderBottomLeftRadius: msg.role === BOT ? 4 : 12,
+                  whiteSpace: "pre-wrap",
+                  lineHeight: 1.55,
+                  fontSize: 13.5,
                 }}
               >
                 {msg.text}
               </div>
-              <span style={{ fontSize: 10, color: "#9CA3AF" }}>
+              <span
+                style={{
+                  fontSize: 10,
+                  color: "#A09890",
+                  marginTop: 4,
+                  padding: "0 2px",
+                }}
+              >
                 {formatTime(msg.time)}
               </span>
             </div>
@@ -225,7 +367,7 @@ const ChatBoard = () => {
         ))}
 
         {isTyping && (
-          <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ display: "flex", gap: 10, alignItems: "flex-end" }}>
             <BotAvatar />
             <TypingDots />
           </div>
@@ -234,40 +376,97 @@ const ChatBoard = () => {
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
+      {/* Input bar */}
       <div
         style={{
-          padding: 10,
+          background: "rgb(28, 35, 51)",
+          padding: "12px 14px",
           display: "flex",
           gap: 10,
-          background: "#1E2228",
+          alignItems: "flex-end",
+          flexShrink: 0,
         }}
       >
-        <textarea
-          ref={textareaRef}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Type a message..."
+        {/* Input wrap */}
+        <div
           style={{
             flex: 1,
-            borderRadius: 8,
-            padding: 10,
-            background: "#2A3040",
-            color: "#fff",
-            resize: "none",
+            background: "#2E3A52",
+            borderRadius: 10,
+            display: "flex",
+            alignItems: "center",
+            padding: "0 12px",
+            gap: 8,
           }}
-        />
+        >
+          {/* Attach icon */}
+          <button
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "#5A6880",
+              display: "flex",
+              alignItems: "center",
+              padding: "2px",
+              flexShrink: 0,
+            }}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" />
+            </svg>
+          </button>
 
+          <textarea
+            ref={textareaRef}
+            value={input}
+            onChange={handleInput}
+            onKeyDown={handleKeyDown}
+            placeholder="Type a message..."
+            rows={1}
+            style={{
+              flex: 1,
+              background: "transparent",
+              border: "none",
+              outline: "none",
+              resize: "none",
+              color: "#DDD9D2",
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 13.5,
+              padding: "10px 0",
+              lineHeight: 1.5,
+              maxHeight: 120,
+              overflowY: "auto",
+            }}
+          />
+        </div>
+
+        {/* Send button */}
         <button
           onClick={sendMessage}
           disabled={!input.trim() || isTyping}
           style={{
-            background: "#5B8DEF",
+            width: 38,
+            height: 38,
+            borderRadius: 10,
+            background: !input.trim() || isTyping ? "#3A485F" : "#C8623A",
             border: "none",
-            padding: "8px 12px",
-            borderRadius: 8,
-            cursor: "pointer",
+            cursor: !input.trim() || isTyping ? "default" : "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: !input.trim() || isTyping ? "#5A6880" : "#FAF5EE",
+            flexShrink: 0,
+            transition: "background 0.15s",
           }}
         >
           <SendIcon />
